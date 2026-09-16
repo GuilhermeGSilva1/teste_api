@@ -60,4 +60,17 @@ public class TaskService {
 
         return this.taskRepository.save(newObj);
     }
+ //metodo para deletar uma tarefa pelo ID 
+    public void delete(Long Id){
+        //verifica se a tarefa existe antes de tentar deletar
+        findById(Id);
+
+        try{    //solicita a remoção da tarefa no banco de dados pelo ID
+                this.taskRepository.deleteById(Id);
+
+        } catch (Exception e) { 
+            // captura excessões (como violação de chave extrangeira e lança uma mensagem amigável)
+            throw new RuntimeException( "Não é possivel excluir pois não há tarefas relacionadas");
+        }
+    }   
 }
