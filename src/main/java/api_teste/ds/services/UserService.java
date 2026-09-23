@@ -45,7 +45,7 @@ public class UserService {
 
         obj = this.userRepository.save(obj);
 
-        this.taskRepository.save(obj.getClass());
+        this.taskRepository.Save(obj.getClass());
 
         return obj;
     }
