@@ -4,55 +4,88 @@ package api_teste.ds.controllers;
 // Import de classe utilitária para manipular e representar URIs/URLs
 import java.net.URI;
 
-// Anotações e classes do Spring Framework para injeção de dependência e respostas HTTP
-import org.springframework.beans.factory.annotation.Autowired; // Injeção automática de dependências pelo Spring
-import org.springframework.http.ResponseEntity; // Classe para construir e customizar respostas HTTP completas (código de status, cabeçalhos e corpo)
+// Anotações e classes do Spring Framework
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 
-// Import para ativar a validação de objetos/parâmetros anotados
+// Import para ativar a validação
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.DeleteMapping;
+// Mapeamentos de requisições HTTP
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-// Mapeamentos de requisições HTTP (Verbos REST)
-import org.springframework.web.bind.annotation.DeleteMapping; // Mapeia requisições HTTP DELETE
-import org.springframework.web.bind.annotation.GetMapping;    // Mapeia requisições HTTP GET
-import org.springframework.web.bind.annotation.PathVariable; // Extrai variáveis da URL (ex: /users/{id})
-import org.springframework.web.bind.annotation.PostMapping;   // Mapeia requisições HTTP POST
-import org.springframework.web.bind.annotation.PutMapping;    // Mapeia requisições HTTP PUT
-import org.springframework.web.bind.annotation.RequestBody;   // Converte o corpo da requisição (JSON) em um objeto Java
-import org.springframework.web.bind.annotation.RequestMapping;// Define a rota/caminho base do controller
-import org.springframework.web.bind.annotation.RestController; // Marca a classe como um controller REST (retorna dados diretamente no corpo da resposta, em JSON/XML)
-
-// Utilitário para construir URIs dinamicamente a partir do contexto da requisição atual (útil para o cabeçalho Location ao criar recursos com POST)
+// Utilitário para construir URIs dinamicamente
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+// Import das classes do projeto
 import api_teste.ds.models.User;
 import api_teste.ds.models.User.CreateUser;
-import api_teste.ds.models.User.UpdateUser;
 import api_teste.ds.services.UserService;
-/**
- * Classe responsável por expor os endpoints REST relacionados aos usuários.
- * Nota: Geralmente deve ser anotada com @RestController e @RequestMapping("/caminho").
- */
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.PutMapping;
 
-@RestController //define a classe controlador REST que retorna respostas em JSON
-@RequestMapping ("/user")//define que todas as rotas desta classe terão como prefixo o caminho "/user"
-@Validated //ativa a verificação de validações nos parametros recebidos no controller
 
+// Classe responsável pelos endpoints REST relacionados aos usuários
+@RestController
+
+// Define que todas as rotas desta classe terão o prefixo "/user"
+@RequestMapping("/user")
+
+// Ativa a validação dos parâmetros recebidos
+@Validated
 public class UserController {
-    
-    @Autowired 
+
+    // Injeta automaticamente o UserService nesta classe
+    @Autowired
     private UserService userService;
 
-    @GetMapping("/{id}") //mapeia requisições HTTP GET na rota "/user/{id}"
-    public ResponseEntity<User> findById(@PathVariable long Id){ //metodo para buscar usuario por id capturado da url
-        User obj=this.userService.findById(Id); //invoca a busca do usuario atraves do id recebido
-        return ResponseEntity.ok().body(obj); //retorna codig HTTP 200(ok) com o objeto User no corpo de resposta
-    } //fim do metodo findById
+    // Mapeia requisições HTTP GET na rota "/user/{id}"
+    @GetMapping("/{id}")
+    public ResponseEntity<User> findById(@PathVariable long id) {
+
+        // Busca o usuário através do ID recebido pela URL
+        User obj = this.userService.findById(id);
+
+        // Retorna HTTP 200 (OK) com o usuário no corpo da resposta
+        return ResponseEntity.ok().body(obj);
+    } // Fim do Método FindyId
+
+    // Mapeia requisições HTTP POST na rota "/user" (Criação de Novo Usuario)
     @PostMapping
-    public ResponseEntity<void> create(@Validated (CreateUser.class) @RequestBody User obj){
+    public ResponseEntity<Void> create(
+            @Validated(CreateUser.class) @RequestBody User obj) {
+            // Valida regra de CreateUser e dessarealiza e o corpo JSON
+
+        // Envia o usuário para o service realizar o cadastro
         this.userService.create(obj);
-        URI url = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(obj.getId()).toUri();
+
+        // Monta a URL do usuário que acabou de ser criado
+        URI url = ServletUriComponentsBuilder
+                .fromCurrentRequest()
+                .path("/{id}")
+                .buildAndExpand(obj.getId())
+                .toUri();
+
+        // Retorna O código HTTP 201 (Created) e a URL do novo usuário no cabeçalho Location
         return ResponseEntity.created(url).build();
-    
+    }
+
+    @PutMapping("/{id")// Mapeia requisições HTTP Put na rota base "/user/{id}" (atualização de usuario)
+    public ResponseEntity<Void> update(@Validated(UpdateUser.class)@RequestBody User obj, @PathVariable Long id){
+        obj.setId(id);// Garente que o ID do objeto ao ser atualizado, Garantir ao ID informado na URL
+        this.userService.update(obj); // Executa a atualização da Senha do User no banco de dados
+        return ResponseEntity.noContent().build();// Retorna Código HTTP 204(No Content) indicaando Sucesso sem corpo de resposta
+    }
+
+    @DeleteMapping ("/{id}") // Mapeia requisições HTTP DELETE na rosa "/user/{id}"
+    public ResponseEntity<Void>delete(@PathVariable Long id){
+        this.userService.delete(id); // Invoca Método de deletação do Serviço
+        return ResponseEntity.noContent().build(); // Retorna Código HTTP 204 (No Content) confirmando a Exclusão
+    }
+
 
 }
