@@ -41,7 +41,7 @@ public class TaskController {
 
     @GetMapping("/user/{userid}") // Mapeia requisições GET para a rota de tarefas por usuário
     public ResponseEntity<List<Task>> findByUserId(@PathVariable Long userId) { // Extrai o parâmetro "userId" da URL
-        List<Task> objs = this.taskService.findAllByUserId(userId); // Busca todas as tarefas do usuário no serviço
+        List<Task> objs = this.taskService.findAllbyUserId(userId); // Busca todas as tarefas do usuário no serviço
         return ResponseEntity.ok().body(objs); // Retorna a lista de tarefas no corpo da resposta com HTTP 200 (OK)
     }
 

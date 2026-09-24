@@ -30,11 +30,16 @@ public class TaskService {
         ));
     }
 
+    public List<Task> findAllbyUserId(Long userId){
+        List<Task> tasks = this.taskRepository.findByUser_Id(userId);
+        return tasks;
+    }
+
     public List<Task> findByUserId(Long userId) {
 
         this.userService.findById(userId);
 
-        return this.taskRepository.findByUserId(userId);
+        return this.taskRepository.findByUser_Id(userId);
     }
 
     @Transactional
@@ -60,17 +65,24 @@ public class TaskService {
 
         return this.taskRepository.save(newObj);
     }
- //metodo para deletar uma tarefa pelo ID 
-    public void delete(Long Id){
-        //verifica se a tarefa existe antes de tentar deletar
-        findById(Id);
 
-        try{    //solicita a remoção da tarefa no banco de dados pelo ID
-                this.taskRepository.deleteById(Id);
+    // Método para deletar uma tarefa pelo ID
+    public void delete(Long id) {
 
-        } catch (Exception e) { 
-            // captura excessões (como violação de chave extrangeira e lança uma mensagem amigável)
-            throw new RuntimeException( "Não é possivel excluir pois não há tarefas relacionadas");
+        // Verifica se a tarefa existe antes de tentar deletar
+        findById(id);
+
+        try {
+
+            // Solicita a remoção da tarefa no banco de dados pelo ID
+            this.taskRepository.deleteById(id);
+
+        } catch (Exception e) {
+
+            // Captura exceções, como violação de chave estrangeira
+            throw new RuntimeException(
+                "Não é possível excluir a tarefa pois existem dados relacionados."
+            );
         }
-    }   
+    }
 }

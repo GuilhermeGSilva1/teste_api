@@ -10,11 +10,13 @@ import org.springframework.http.ResponseEntity;
 
 // Import para ativar a validação
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.DeleteMapping;
+
 // Mapeamentos de requisições HTTP
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -25,9 +27,8 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 // Import das classes do projeto
 import api_teste.ds.models.User;
 import api_teste.ds.models.User.CreateUser;
+import api_teste.ds.models.User.UpdateUser;
 import api_teste.ds.services.UserService;
-import org.springframework.web.bind.annotation.PutMapping;
-
 
 // Classe responsável pelos endpoints REST relacionados aos usuários
 @RestController
@@ -45,22 +46,22 @@ public class UserController {
 
     // Mapeia requisições HTTP GET na rota "/user/{id}"
     @GetMapping("/{id}")
-    public ResponseEntity<User> findById(@PathVariable long id) {
+    public ResponseEntity<User> findById(@PathVariable Long id) {
 
         // Busca o usuário através do ID recebido pela URL
         User obj = this.userService.findById(id);
 
         // Retorna HTTP 200 (OK) com o usuário no corpo da resposta
         return ResponseEntity.ok().body(obj);
-    } // Fim do Método FindyId
+    }
 
-    // Mapeia requisições HTTP POST na rota "/user" (Criação de Novo Usuario)
+    // Mapeia requisições HTTP POST na rota "/user"
+    // Responsável pela criação de um novo usuário
     @PostMapping
     public ResponseEntity<Void> create(
             @Validated(CreateUser.class) @RequestBody User obj) {
-            // Valida regra de CreateUser e dessarealiza e o corpo JSON
 
-        // Envia o usuário para o service realizar o cadastro
+        // Valida as regras de CreateUser e desserializa o corpo JSON
         this.userService.create(obj);
 
         // Monta a URL do usuário que acabou de ser criado
@@ -70,22 +71,37 @@ public class UserController {
                 .buildAndExpand(obj.getId())
                 .toUri();
 
-        // Retorna O código HTTP 201 (Created) e a URL do novo usuário no cabeçalho Location
+        // Retorna HTTP 201 (Created)
+        // e a URL do novo usuário no cabeçalho Location
         return ResponseEntity.created(url).build();
     }
 
-    @PutMapping("/{id")// Mapeia requisições HTTP Put na rota base "/user/{id}" (atualização de usuario)
-    public ResponseEntity<Void> update(@Validated(UpdateUser.class)@RequestBody User obj, @PathVariable Long id){
-        obj.setId(id);// Garente que o ID do objeto ao ser atualizado, Garantir ao ID informado na URL
-        this.userService.update(obj); // Executa a atualização da Senha do User no banco de dados
-        return ResponseEntity.noContent().build();// Retorna Código HTTP 204(No Content) indicaando Sucesso sem corpo de resposta
+    // Mapeia requisições HTTP PUT na rota "/user/{id}"
+    // Responsável pela atualização do usuário
+    @PutMapping("/{id}")
+    public ResponseEntity<Void> update(
+            @Validated(User.UpdateUser.class) @RequestBody User obj,
+            @PathVariable Long id) {
+
+        // Garante que o ID do objeto seja o mesmo informado na URL
+        obj.setId(id);
+
+        // Executa a atualização do usuário no banco de dados
+        this.userService.update(obj);
+
+        // Retorna HTTP 204 (No Content), indicando sucesso sem corpo de resposta
+        return ResponseEntity.noContent().build();
     }
 
-    @DeleteMapping ("/{id}") // Mapeia requisições HTTP DELETE na rosa "/user/{id}"
-    public ResponseEntity<Void>delete(@PathVariable Long id){
-        this.userService.delete(id); // Invoca Método de deletação do Serviço
-        return ResponseEntity.noContent().build(); // Retorna Código HTTP 204 (No Content) confirmando a Exclusão
+    // Mapeia requisições HTTP DELETE na rota "/user/{id}"
+    // Responsável pela exclusão do usuário
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+
+        // Invoca o método de exclusão do serviço
+        this.userService.delete(id);
+
+        // Retorna HTTP 204 (No Content), confirmando a exclusão
+        return ResponseEntity.noContent().build();
     }
-
-
 }
