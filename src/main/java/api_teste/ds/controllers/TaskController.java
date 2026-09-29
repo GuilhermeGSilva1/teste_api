@@ -33,15 +33,15 @@ public class TaskController {
     @Autowired // Realiza a injeção automática de dependência do TaskService
     private TaskService taskService;
 
-    @GetMapping("path") // Mapeia requisições GET no caminho especificado
+    @GetMapping("/{id}") // Mapeia requisições GET no caminho especificado
     public ResponseEntity<Task> findById(@PathVariable Long id) { // Extrai o parâmetro "id" da URL
         Task obj = this.taskService.findById(id); // Chama a camada de serviço para buscar a tarefa
         return ResponseEntity.ok().body(obj); // Retorna a tarefa encontrada no corpo da resposta com HTTP 200 (OK)
     }
 
     @GetMapping("/user/{userid}") // Mapeia requisições GET para a rota de tarefas por usuário
-    public ResponseEntity<List<Task>> findByUserId(@PathVariable Long userId) { // Extrai o parâmetro "userId" da URL
-        List<Task> objs = this.taskService.findAllbyUserId(userId); // Busca todas as tarefas do usuário no serviço
+    public ResponseEntity<List<Task>> findByUserId(@PathVariable Long userid) { // Extrai o parâmetro "userId" da URL
+        List<Task> objs = this.taskService.findAllbyUserId(userid); // Busca todas as tarefas do usuário no serviço
         return ResponseEntity.ok().body(objs); // Retorna a lista de tarefas no corpo da resposta com HTTP 200 (OK)
     }
 
@@ -53,7 +53,7 @@ public class TaskController {
         return ResponseEntity.created(url).build(); // Retorna o status HTTP 201 (Created) contendo a URI no cabeçalho
     }
 
-    @PostMapping("/{id}") // Mapeia requisições POST para a rota com ID do recurso a ser atualizado
+    @PutMapping("/{id}") // Mapeia requisições POST para a rota com ID do recurso a ser atualizado
     public ResponseEntity<Void> update(@Valid @RequestBody Task obj, @PathVariable Long id) { // Recebe o corpo validado
                                                                                               // e o ID da URL
         obj.setId(id); // Garante que o objeto receba o ID informado na URL
